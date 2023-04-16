@@ -17,19 +17,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	readBuffer := make([]byte, 1024)
+	conn, err := l.Accept()
+	if err != nil {
+		fmt.Println("Error accepting connection: ", err.Error())
+		os.Exit(1)
+	}
+	defer conn.Close()
+
 	for true {
-		conn, err := l.Accept()
-		if err != nil {
-			fmt.Println("Error accepting connection: ", err.Error())
+		readBuffer := make([]byte, 1024)
+
+		if _, err := conn.Read(readBuffer); err != nil {
+			fmt.Println("Error reading from connection: ", err.Error())
 			os.Exit(1)
 		}
-		conn.Read(readBuffer)
 		conn.Write([]byte("+PONG\r\n"))
-		conn.Close()
 
 	}
-	_, err = l.Accept()
 
 	if err != nil {
 		fmt.Println("Error accepting connection: ", err.Error())
